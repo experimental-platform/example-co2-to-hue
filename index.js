@@ -4,6 +4,7 @@ var app = express();
 var state = {sat: 254, bri: 64, hue: 25500};
 
 app.use(bodyParser.json());
+app.set('port', (process.env.PORT || 5000));
 
 app.put('/api/342716561e24f19024c9edfb8f89eee/lights/1/state', function (req, res) {
   console.log(req.body);
@@ -19,6 +20,6 @@ app.get('/', function (req, res) {
   res.send(state);
 });
 
-app.listen(3001, function () {
-  console.log("listening on 3001");
+app.listen(app.get('port'), function () {
+  console.log("listening on " + app.get('port'));
 });
