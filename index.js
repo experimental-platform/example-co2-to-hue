@@ -8,7 +8,6 @@ var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use('/bower_components', express.static(__dirname + '/bower_components'));
 
 var server = http.createServer(app);
 var io = require('socket.io')(server);

@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Experimental Platform CO2 example fakes</title>
-    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="/js/d3.min.js"></script>
+    <script src="/js/tinycolor.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8">
       var socket = io.connect('http://localhost:5000');
@@ -14,14 +15,30 @@
       });
       socket.on('hue', function (data) {
         document.getElementById("hue").innerHTML = "Hue: " + data.hue + " Sat: " + data.sat + " Bri: " + data.bri;
+        var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
+        <!-- var color = tinycolor("hsv(0, 254, 192)");-->
+        document.getElementById("hueColor").style.backgroundColor = "#" + color.toHex();
         console.log(data);
       });
     </script>
+    <style type="text/css" media="screen">
+      #hueColor {
+        height: 150px;
+      }
+    </style>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" media="all" />
   </head>
   <body>
-    <h1>Hue lights</h1>
-    <div id="hue"></div>
-    <h1>CO2 Sensor</h1>
-    <span id="co2"></span> ppm
+    <div class="container">
+      <h1>Hue lights</h1>
+      <div class="well">
+        <div id="hue"></div>
+        <div class="alert" id="hueColor"></div>
+      </div>
+      <h1>CO2 Sensor</h1>
+      <div class="well">
+        <span id="co2"></span> ppm
+      </div>
+    </div>
   </body>
 </html>
