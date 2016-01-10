@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Experimental Platform CO2 example fakes</title>
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      var socket = io.connect('http://localhost:5000');
+      socket.on('co2', function (data) {
+        document.getElementById("co2").innerHTML = data.value;
+        console.log(data);
+      });
+      socket.on('hue', function (data) {
+        document.getElementById("hue").innerHTML = "Hue: " + data.hue + " Sat: " + data.sat + " Bri: " + data.bri;
+        console.log(data);
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Hue lights</h1>
+    <div id="hue"></div>
+    <h1>CO2 Sensor</h1>
+    <span id="co2"></span> ppm
+  </body>
+</html>
