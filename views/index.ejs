@@ -6,6 +6,7 @@
     <title>Experimental Platform CO2 example fakes</title>
     <script src="/js/d3.min.js"></script>
     <script src="/js/tinycolor.js"></script>
+    <script src="/js/jquery-2.2.0.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8">
       var socket = io.connect('http://localhost:5000');
@@ -16,7 +17,6 @@
       socket.on('hue', function (data) {
         document.getElementById("hue").innerHTML = "Hue: " + data.hue + " Sat: " + data.sat + " Bri: " + data.bri;
         var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
-        <!-- var color = tinycolor("hsv(0, 254, 192)");-->
         document.getElementById("hueColor").style.backgroundColor = "#" + color.toHex();
         console.log(data);
       });
@@ -30,6 +30,12 @@
   </head>
   <body>
     <div class="container">
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="hueUrl">HueUrl<label>
+          <input type="text" name="hueUrl" class="form-control" value="<%= hueUrl %>">
+        </div>
+      </form>
       <h1>Hue lights</h1>
       <div class="well">
         <div id="hue"></div>
