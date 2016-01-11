@@ -13,13 +13,13 @@ var sensor = 0
   , low = 500
   , counter = 0.0
 
-app.put('/api/342716561e24f19024c9edfb8f89eee/lights/1/state', function (req, res) {
+app.put(hueUrl, function (req, res) {
   console.log(req.body);
   state = req.body;
   res.sendStatus(200);
 });
 
-app.get('/api/342716561e24f19024c9edfb8f89eee/lights/1/state', function (req, res) {
+app.get(hueUrl, function (req, res) {
   res.send(state);
 });
 
