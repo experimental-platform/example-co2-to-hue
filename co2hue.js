@@ -75,6 +75,7 @@ var fetchCO2Levels = function () {
           }
           console.log('fetches new CO2 levels from EP. Old: ' + currentPPM + 'ppm - new: ' + newPPM + 'ppm');
           currentPPM = newPPM;
+          io.sockets.emit('reading', newPPM);
         }
       }
       fetchCO2Levels();

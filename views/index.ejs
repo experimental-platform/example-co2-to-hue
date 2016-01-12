@@ -6,16 +6,26 @@
     <title>Experimental Platform "CO2 to Hue" example</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="all" />
     <link rel="stylesheet" href="css/c3.min.css" type="text/css" media="all" />
-    <style type="text/css" media="screen">
+    <style type="text/css" media="all">
       #hueColor {
         width: 94px;
         margin: 0 auto;
+      }
+
+      .dummySensors {
+        margin-bottom: 100px;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1 class="page-header">CO2 Sensor to Hue connector</h1>
+
+      <div class="alert alert-warning">
+        <span class="glyphicon glyphicon-exclamation-sign"></span>
+        If you don't have a Hue or a CO2 sensor at hand you can use <a href="#dummySensors">the dummy sensor / Hue below!</a>
+      </div>
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h2 class="panel-title"><span class="glyphicon glyphicon-cog"></span> Settings</h2>
@@ -39,14 +49,10 @@
         </div>
       </div>
 
-      <div class="alert alert-warning">
-        <span class="glyphicon glyphicon-exclamation-sign"></span>
-        If you don't have a Hue or a CO2 sensor at hand you can use the dummy sensor / Hue below!
-      </div>
-
-      <div class="row">
+      <div class="row dummySensors">
         <div class="col-md-6">
           <h1 class="page-header">Dummy CO2 sensor</h1>
+					<a name="dummySensors"></a>
           <dl>
             <dt>Sensor ID</dt>
             <dd><%= fakeSensorID %></dd>
@@ -67,11 +73,11 @@
           </div>
         </div>
     </div>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="js/jquery-2.2.0.min.js"></script>
     <script src="js/d3.min.js"></script>
     <script src="js/c3.min.js"></script>
     <script src="js/tinycolor.js"></script>
-    <script src="js/jquery-2.2.0.min.js"></script>
-    <script src="socket.io/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8">
       var gauge = c3.generate({
         bindto: '#gauge',
@@ -111,6 +117,9 @@
         $("#hueColor").css('backgroundColor', "#" + color.toHex());
         console.log(data);
       });
+      socket.on('reading', function (data) {
+
+			});
 
       $('#settingsButton').on('click', function (e) {
         e.preventDefault();
