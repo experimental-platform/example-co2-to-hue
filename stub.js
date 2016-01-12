@@ -14,6 +14,7 @@ module.exports = function (_io, _platformURL) {
     socket.emit('hue', color);
   });
 
+  publishToPlatform();
   return {
     authToken: authToken,
     sensorID:  sensorID,
@@ -29,7 +30,7 @@ var sensor = 0
   , counter = 0.0
 
 app.put(hueEndpoint, function (req, res) {
-  console.log("Fake HUE received new color " + JSON.stringify(req.body));
+  console.log("Dummy HUE received new color " + JSON.stringify(req.body));
   color = req.body;
   io.sockets.emit('hue', color);
   res.sendStatus(200);
@@ -38,11 +39,17 @@ app.put(hueEndpoint, function (req, res) {
 setInterval(function () {
   sensor = Math.floor((high - low) * Math.abs(Math.sin(counter)) + low);
   counter += 0.1;
-  console.log('Fake CO2 sensor reading ' + sensor + ' ppm');
+  console.log('Dummy CO2 sensor reading ' + sensor + ' ppm');
   io.sockets.emit('co2', {value: sensor});
-  request.post(platformUrl + "/devices/" + sensorID)
-    .form({value: sensor})
-    .on('error', function (err) {
-      console.log("Could not send sensor data to experimental platform: "+ err.code);
-    });
 }, 1000);
+
+var publishToPlatform = function () {
+  setTimeout(function () {
+    request.post(platformUrl + "/devices/" + sensorID, function () { publishToPlatform() })
+      .form({value: sensor})
+      .on('error', function (err) {
+        console.log("Could not send sensor data to experimental platform: "+ err.code);
+      });
+  }, 2000);
+}
+

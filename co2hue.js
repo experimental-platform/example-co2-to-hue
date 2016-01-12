@@ -19,17 +19,8 @@ var config = {
 module.exports = function (_io, _platformURL) {
   io = _io;
   platformUrl = _platformURL;
+  fetchCO2Levels();
   return config;
-}
-
-var fetchCO2Level = function (success) {
-  var ppm;
-  request(platformUrl + '/devices/' + config.sensorID, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      ppm = parseInt(JSON.parse(body).value);
-      success(ppm);
-    }
-  });
 }
 
 var isLowPPM = function (ppm) {
@@ -68,17 +59,27 @@ var hueUrl = function () {
   return baseUrl + '/api/' + config.authToken + '/lights/2/state';
 }
 
-setInterval(function () {
-  fetchCO2Level(function (newPPM) {
-    if (!isNaN(newPPM) && newPPM != currentPPM) {
-      if (ppmChangedToLow(newPPM)) {
-        setHueTo(hueGreen);
-      } else if (ppmChangedToMedium(newPPM)) {
-        setHueTo(hueYellow);
-      } else if (ppmChangedToHigh(newPPM)) {
-        setHueTo(hueRed);
+
+var fetchCO2Levels = function () {
+  setTimeout(function () {
+    request({url: platformUrl + '/devices/' + config.sensorID, timeout: 2000}, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var newPPM  = parseInt(JSON.parse(body).value);
+        if (!isNaN(newPPM) && newPPM != currentPPM) {
+          if (ppmChangedToLow(newPPM)) {
+            setHueTo(hueGreen);
+          } else if (ppmChangedToMedium(newPPM)) {
+            setHueTo(hueYellow);
+          } else if (ppmChangedToHigh(newPPM)) {
+            setHueTo(hueRed);
+          }
+          console.log('fetches new CO2 levels from EP. Old: ' + currentPPM + 'ppm - new: ' + newPPM + 'ppm');
+          currentPPM = newPPM;
+        }
       }
-      currentPPM = newPPM;
-    }
-  });
-}, 1000);
+      fetchCO2Levels();
+    }).on('error', function (err) {
+      console.log('error fetching CO2 levels form EP');
+    });
+  }, 1000);
+}
