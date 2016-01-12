@@ -10,6 +10,13 @@ var stub = require('./stub')(io, platformUrl);
 var hueUrl = 'http://localhost:' + app.get('port') + stub.hueEndpointUrl;
 var co2hue = require('./co2hue')(io, hueUrl, stub.sensorID, platformUrl);
 
+app.get('/', function (req, res) {
+  res.render('index', {
+    hueUrl: hueUrl,
+    fakeSensorID: stub.sensorID
+  });
+});
+
 reload(server, app);
 
 server.listen(app.get('port'), function () {

@@ -9,24 +9,58 @@
     <style type="text/css" media="screen">
       #hueColor {
         width: 94px;
+        margin: 0 auto;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <form class="form-inline" id="settingsForm">
-        <div class="form-group">
-          <label for="hueUrl">HueUrl<label>
-          <input type="text" name="hueUrl" class="form-control" value="<%= hueUrl %>">
-        </div>
-        <button type="submit" id="settingsButton" class="btn btn-default">Submit</button>
-      </form>
+      <h1 class="page-header">CO2 Sensor to Hue connector</h1>
+      <!-- <form class="form-inline" id="settingsForm">-->
+      <!--   <div class="form-group">-->
+      <!--     <label for="hueUrl">HueUrl</label>-->
+      <!--     <input type="text" name="hueUrl" class="form-control" value="<%= hueUrl %>">-->
+      <!--   </div>-->
+      <!--   <button type="submit" id="settingsButton" class="btn btn-default">Submit</button>-->
+      <!-- </form>-->
 
-      Don't have a Hue or a CO2 sensor at hand?
-      <div id="gauge"></div>
-      <div id="hueColor">
-        <img src="img/hue.png">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <form class="form">
+            <div class="form-group">
+              <label for="hueAuthToken">Hue Auth Token:</label>
+              <input type="text" name="hueUrl" class="form-control" placeholder="asdfkljasdfj90sdfj09asjdf">
+            </div>
+            <div class="form-group">
+              <label for="hueAuthToken">Bridge IP:</label>
+              <input type="text" name="bridgeIP" class="form-control" placeholder="10.0.0.157">
+            </div>
+            <div class="form-group">
+              <label for="sensorID">Sensor ID:</label>
+              <input type="text" name="sensorID" class="form-control" placeholder="co2SensorStub">
+            </div>
+            <button type="submit" id="settingsButton" class="btn btn-default">Save</button>
+          </form>
+        </div>
       </div>
+
+      <div class="alert alert-warning">
+        <span class="glyphicon glyphicon-exclamation-sign"></span>
+        If you don't have a Hue or a CO2 sensor at hand you can use the fake sensor / Hue below!
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h1 class="page-header">Fake CO2 sensor</h1>
+          <small>sensor id: <strong><%= fakeSensorID %></strong></small>
+          <div id="gauge"></div>
+        </div>
+        <div class="col-md-6">
+          <h1 class="page-header">Fake Hue bulb<h1>
+          <div id="hueColor">
+            <img src="img/hue.png">
+          </div>
+        </div>
     </div>
     <script src="js/d3.min.js"></script>
     <script src="js/c3.min.js"></script>

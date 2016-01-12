@@ -19,11 +19,6 @@ module.exports = function (_io, _hueUrl, _deviceID, _platformURL) {
   platformUrl = _platformURL;
 }
 
-
-app.get('/', function (req, res) {
-  res.render('index', {hueUrl: hueUrl});
-});
-
 app.post('/settings', function (req, res) {
   console.log(req.body);
   if (typeof(req.body.hueUrl) != 'undefined') {

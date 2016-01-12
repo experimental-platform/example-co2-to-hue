@@ -43,4 +43,4 @@ setInterval(function () {
     .on('error', function (err) {
       console.log("Could not send sensor data to experimental platform: "+ err.code);
     });
-}, 2000);
+}, 1000);
