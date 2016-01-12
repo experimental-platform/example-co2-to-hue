@@ -5,12 +5,10 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io')(server);
 
-var stub = require('./stub')(io);
-var hueUrl = stub.hueUrl;
-
-app.get('/', function (req, res) {
-  res.render('index', {hueUrl: hueUrl});
-});
+var platformUrl = process.env.PLATFORM_URL || 'http://localhost:3200';
+var stub = require('./stub')(io, platformUrl);
+var hueUrl = 'http://localhost:' + app.get('port') + stub.hueEndpointUrl;
+var co2hue = require('./co2hue')(io, hueUrl, stub.sensorID, platformUrl);
 
 reload(server, app);
 

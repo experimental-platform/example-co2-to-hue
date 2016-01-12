@@ -4,47 +4,81 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Experimental Platform CO2 example fakes</title>
-    <script src="js/d3.min.js"></script>
-    <script src="js/tinycolor.js"></script>
-    <script src="js/jquery-2.2.0.min.js"></script>
-    <script src="socket.io/socket.io.js"></script>
-    <script type="text/javascript" charset="utf-8">
-      var socket = io.connect('http://localhost:5000');
-      socket.on('co2', function (data) {
-        document.getElementById("co2").innerHTML = data.value;
-        console.log(data);
-      });
-      socket.on('hue', function (data) {
-        document.getElementById("hue").innerHTML = "Hue: " + data.hue + " Sat: " + data.sat + " Bri: " + data.bri;
-        var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
-        document.getElementById("hueColor").style.backgroundColor = "#" + color.toHex();
-        console.log(data);
-      });
-    </script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="css/c3.min.css" type="text/css" media="all" />
     <style type="text/css" media="screen">
       #hueColor {
-        height: 150px;
+        width: 94px;
       }
     </style>
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="all" />
   </head>
   <body>
     <div class="container">
-      <form class="form-inline">
+      <form class="form-inline" id="settingsForm">
         <div class="form-group">
           <label for="hueUrl">HueUrl<label>
           <input type="text" name="hueUrl" class="form-control" value="<%= hueUrl %>">
         </div>
+        <button type="submit" id="settingsButton" class="btn btn-default">Submit</button>
       </form>
-      <h1>Hue lights</h1>
-      <div class="well">
-        <div id="hue"></div>
-        <div class="alert" id="hueColor"></div>
-      </div>
-      <h1>CO2 Sensor</h1>
-      <div class="well">
-        <span id="co2"></span> ppm
+
+      Don't have a Hue or a CO2 sensor at hand?
+      <div id="gauge"></div>
+      <div id="hueColor">
+        <img src="img/hue.png">
       </div>
     </div>
+    <script src="js/d3.min.js"></script>
+    <script src="js/c3.min.js"></script>
+    <script src="js/tinycolor.js"></script>
+    <script src="js/jquery-2.2.0.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      var gauge = c3.generate({
+        bindto: '#gauge',
+        data: {
+          columns: [['ppm', 500]],
+          type: 'gauge'
+        },
+        gauge: {
+          label: {
+            format: function(value, ratio) {
+              return value;
+            }
+          },
+          max: 2000,
+          units: 'ppm'
+        },
+        color: {
+          pattern: ['#00A043', '#FFFF00', '#FF0000'],
+          threshold: {
+            unit: 'value',
+            values: [1000, 1500, 3000]
+          }
+        },
+        size: {
+          height: 180
+        }
+      });
+
+
+      var socket = io.connect('http://localhost:5000');
+      socket.on('co2', function (data) {
+        console.log(data);
+        var ppm = parseInt(data.value);
+        // $("#co2").html(ppm);
+        gauge.load({columns: [['ppm', ppm]]});
+      });
+      socket.on('hue', function (data) {
+        var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
+        $("#hueColor").css('backgroundColor', "#" + color.toHex());
+        console.log(data);
+      });
+
+      $('#settingsButton').on('click', function (e) {
+        e.preventDefault();
+        $.post('settings', $("#settingsForm").serialize());
+      });
+    </script>
   </body>
 </html>
