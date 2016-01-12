@@ -1,35 +1,30 @@
 var request = require('request');
 var app = require('./app');
-var io, hueUrl;
-var platformUrl;
-var deviceID;
+var io;
 
 var highPPM    = 1500
   , mediumPPM  = 1000
   , currentPPM = 0;
 
-var hueGreen  = {"on": true, "sat": 254, "bri": 64, "hue": 25500}
-  , hueYellow = {"on": true, "sat": 254, "bri": 128,"hue": 12750}
-  , hueRed    = {"on": true, "sat": 254, "bri": 192,"hue": 0};
+var hueGreen  = {'on': true, 'sat': 254, 'bri': 64, 'hue': 25500}
+  , hueYellow = {'on': true, 'sat': 254, 'bri': 128,'hue': 12750}
+  , hueRed    = {'on': true, 'sat': 254, 'bri': 192,'hue': 0};
 
-module.exports = function (_io, _hueUrl, _deviceID, _platformURL) {
+var config = {
+  authToken: null,
+  bridgeAddress: null,
+  sensorID: null
+};
+
+module.exports = function (_io, _platformURL) {
   io = _io;
-  hueUrl = _hueUrl;
-  deviceID = _deviceID;
   platformUrl = _platformURL;
+  return config;
 }
-
-app.post('/settings', function (req, res) {
-  console.log(req.body);
-  if (typeof(req.body.hueUrl) != 'undefined') {
-    hueUrl = req.body.hueUrl;
-    console.log("set hueUrl to " + hueUrl);
-  }
-});
 
 var fetchCO2Level = function (success) {
   var ppm;
-  request(platformUrl + "/devices/" + deviceID, function (error, response, body) {
+  request(platformUrl + '/devices/' + config.sensorID, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       ppm = parseInt(JSON.parse(body).value);
       success(ppm);
@@ -62,8 +57,15 @@ var ppmChangedToHigh = function (ppm) {
 }
 
 var setHueTo = function(hueColor) {
-  console.log("Setting color to " + JSON.stringify(hueColor) + " via " + hueUrl);
-  request.put(hueUrl).json(hueColor)
+  if (config.bridgeAddress) {
+    console.log('Setting color to ' + JSON.stringify(hueColor) + ' via ' + hueUrl());
+    request.put(hueUrl()).json(hueColor)
+  }
+}
+
+var hueUrl = function () {
+  var baseUrl = config.bridgeAddress.slice(0, 4) == 'http' ? config.bridgeAddress : 'http://' + config.bridgeAddress;
+  return baseUrl + '/api/' + config.authToken + '/lights/2/state';
 }
 
 setInterval(function () {

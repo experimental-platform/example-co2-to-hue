@@ -16,30 +16,25 @@
   <body>
     <div class="container">
       <h1 class="page-header">CO2 Sensor to Hue connector</h1>
-      <!-- <form class="form-inline" id="settingsForm">-->
-      <!--   <div class="form-group">-->
-      <!--     <label for="hueUrl">HueUrl</label>-->
-      <!--     <input type="text" name="hueUrl" class="form-control" value="<%= hueUrl %>">-->
-      <!--   </div>-->
-      <!--   <button type="submit" id="settingsButton" class="btn btn-default">Submit</button>-->
-      <!-- </form>-->
-
       <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title"><span class="glyphicon glyphicon-cog"></span> Settings</h2>
+        </div>
         <div class="panel-body">
-          <form class="form">
+          <form class="form" id="settingsForm">
             <div class="form-group">
-              <label for="hueAuthToken">Hue Auth Token:</label>
-              <input type="text" name="hueUrl" class="form-control" placeholder="asdfkljasdfj90sdfj09asjdf">
+              <label for="authToken">Hue Auth Token:</label>
+              <input type="text" name="authToken" class="form-control" value="<%= authToken %>">
             </div>
             <div class="form-group">
-              <label for="hueAuthToken">Bridge IP:</label>
-              <input type="text" name="bridgeIP" class="form-control" placeholder="10.0.0.157">
+              <label for="bridgeAddress">Bridge IP:</label>
+              <input type="text" name="bridgeAddress" class="form-control" id="bridgeAddress"></input>
             </div>
             <div class="form-group">
               <label for="sensorID">Sensor ID:</label>
-              <input type="text" name="sensorID" class="form-control" placeholder="co2SensorStub">
+              <input type="text" name="sensorID" class="form-control" value="<%= sensorID %>">
             </div>
-            <button type="submit" id="settingsButton" class="btn btn-default">Save</button>
+            <button type="submit" id="settingsButton" class="btn btn-success">Save</button>
           </form>
         </div>
       </div>
@@ -52,11 +47,21 @@
       <div class="row">
         <div class="col-md-6">
           <h1 class="page-header">Fake CO2 sensor</h1>
-          <small>sensor id: <strong><%= fakeSensorID %></strong></small>
+          <dl>
+            <dt>Sensor ID</dt>
+            <dd><%= fakeSensorID %></dd>
+          </dl>
           <div id="gauge"></div>
         </div>
+
         <div class="col-md-6">
-          <h1 class="page-header">Fake Hue bulb<h1>
+          <h1 class="page-header">Fake Hue bulb</h1>
+          <dl>
+            <dt>Bridge Adress</dt>
+            <dd id="fakeBridgeAddress"></dd>
+            <dt>Auth Token</dt>
+            <dd>342716561e24f19024c9edfb8f89eee</dd>
+          </dl>
           <div id="hueColor">
             <img src="img/hue.png">
           </div>
@@ -95,12 +100,10 @@
         }
       });
 
-
       var socket = io.connect('http://localhost:5000');
       socket.on('co2', function (data) {
         console.log(data);
         var ppm = parseInt(data.value);
-        // $("#co2").html(ppm);
         gauge.load({columns: [['ppm', ppm]]});
       });
       socket.on('hue', function (data) {
@@ -112,6 +115,11 @@
       $('#settingsButton').on('click', function (e) {
         e.preventDefault();
         $.post('settings', $("#settingsForm").serialize());
+      });
+
+      $(function () {
+        $("#fakeBridgeAddress").html(location.host);
+        $("#bridgeAddress").val(location.host);
       });
     </script>
   </body>
