@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="css/c3.min.css" type="text/css" media="all" />
     <link rel="stylesheet" href="css/rickshaw.min.css" type="text/css" media="all" />
     <style type="text/css" media="all">
+      .panel.closed .panel-body {
+        display: none;
+      }
+
+      #settings {
+        outline: none;
+      }
+
       #hueColor {
         width: 94px;
         margin: 0 auto;
@@ -47,9 +55,9 @@
         If you don't have a Hue or a CO2 sensor at hand you can use <a href="#dummySensors">the dummy sensor / Hue below!</a>
       </div>
 
-      <div class="panel panel-default">
+      <div id="settingsPanel" class="panel panel-default closed">
         <div class="panel-heading">
-          <h2 class="panel-title"><span class="glyphicon glyphicon-cog"></span> Settings</h2>
+          <h2 class="panel-title"><button class="btn btn-default settingsToggle"><span class="glyphicon glyphicon-cog"></span> Settings</button></h2>
         </div>
         <div class="panel-body">
           <form class="form" id="settingsForm">
@@ -65,7 +73,7 @@
               <label for="sensorID">Sensor ID:</label>
               <input type="text" name="sensorID" class="form-control" value="<%= sensorID %>">
             </div>
-            <button type="submit" id="settingsButton" class="btn btn-success">Save</button>
+            <button type="submit" id="settingsButton" class="btn btn-success settingsToggle" data-toggle-delay="70">Save</button>
           </form>
         </div>
       </div>
@@ -157,6 +165,7 @@
       socket.on('reading', function (data) {
         graphData.push({x: counter, y: data});
         graphData.splice(0, graphData.length - maxGraphSize);
+        $("#currentPPM").html(data);
         counter++;
 			});
 
@@ -198,20 +207,22 @@
       });
       socket.on('hue', function (data) {
         var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
-        $("#hueColor").css('backgroundColor', "#" + color.toHex());
+        $('#hueColor').css('backgroundColor', '#' + color.toHex());
         // console.log(data);
       });
 
-
-
       $('#settingsButton').on('click', function (e) {
         e.preventDefault();
-        $.post('settings', $("#settingsForm").serialize());
+        $.post('settings', $('#settingsForm').serialize());
       });
 
       $(function () {
-        $("#fakeBridgeAddress").html(location.host);
-        $("#bridgeAddress").val(location.host);
+        $('#fakeBridgeAddress').html(location.host);
+        $('#bridgeAddress').val(location.host);
+        $('.settingsToggle').on('click', function(e) {
+          var toggleDelay = $(this).attr('data-toggle-delay') || 0;
+          $('#settingsPanel').find(".panel-body").toggle(toggleDelay);
+        });
       });
     </script>
   </body>
