@@ -6,6 +6,7 @@
     <title>Experimental Platform "CO2 to Hue" example</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="all" />
     <link rel="stylesheet" href="css/c3.min.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="css/rickshaw.min.css" type="text/css" media="all" />
     <style type="text/css" media="all">
       #hueColor {
         width: 94px;
@@ -14,6 +15,26 @@
 
       .dummySensors {
         margin-bottom: 100px;
+      }
+
+      #graph {
+        position: relative;
+        left: 40px;
+      }
+
+      #y_axis {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+      }
+
+      #graphContainer {
+        position: relative;
+      }
+
+      #ppmDescription {
+        margin-top: 50px;
       }
     </style>
   </head>
@@ -49,6 +70,26 @@
         </div>
       </div>
 
+      <div class="row">
+        <div id="graphContainer" class="col-md-11">
+          <div id="y_axis"></div>
+          <div id="graph"></div>
+        </div>
+      </div>
+
+      <div class="row" id="ppmDescription">
+        <div class="col-md-12 well">
+          <ol>
+            <li>A co2 concentration of 500 is considered normal.</li>
+            <li>A ppm of 1000 and higher already impacts your productivity and overall well being.</li>
+            <li>A ppm of 1500 and higher is considered unhealthy.</li>
+            <li>A ppm of 5000 and higher is... well... you should better not be in this room</li>
+          </ol>
+        </div>
+      </div>
+
+      <hr/>
+
       <div class="row dummySensors">
         <div class="col-md-6">
           <h1 class="page-header">Dummy CO2 sensor</h1>
@@ -78,7 +119,51 @@
     <script src="js/d3.min.js"></script>
     <script src="js/c3.min.js"></script>
     <script src="js/tinycolor.js"></script>
+    <script src="js/rickshaw.min.js"></script>
     <script type="text/javascript" charset="utf-8">
+      var socket = io.connect('/');
+
+      var maxGraphSize = 100; // maximum number of elements in the graph
+      var graphData = [];
+      var graph = new Rickshaw.Graph({
+        element: document.querySelector("#graph"),
+        height: 250,
+        renderer: 'line',
+        series: [
+          {
+            color: 'steelblue',
+            data: graphData,
+            name: 'co2 level'
+          }
+        ]
+      });
+      var x_axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+      var y_axis = new Rickshaw.Graph.Axis.Y( {
+        graph: graph,
+        orientation: 'left',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        element: document.getElementById('y_axis'),
+      } );
+
+      var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        xFormatter: function(x) { return x + "seconds" },
+        yFormatter: function(y) { return Math.floor(y) + "ppm" }
+      } );
+
+      graph.render();
+
+      var counter = 0;
+      socket.on('reading', function (data) {
+        graphData.push({x: counter, y: data});
+        graphData.splice(0, graphData.length - maxGraphSize);
+        counter++;
+			});
+
+      setInterval(function () {
+        graph.update();
+      }, 3000);
+
       var gauge = c3.generate({
         bindto: '#gauge',
         data: {
@@ -106,20 +191,18 @@
         }
       });
 
-      var socket = io.connect('http://localhost:5000');
       socket.on('co2', function (data) {
-        console.log(data);
+        // console.log(data);
         var ppm = parseInt(data.value);
         gauge.load({columns: [['ppm', ppm]]});
       });
       socket.on('hue', function (data) {
         var color = tinycolor({h: Math.floor(data.hue / 182), s: data.sat, v: data.bri});
         $("#hueColor").css('backgroundColor', "#" + color.toHex());
-        console.log(data);
+        // console.log(data);
       });
-      socket.on('reading', function (data) {
 
-			});
+
 
       $('#settingsButton').on('click', function (e) {
         e.preventDefault();
