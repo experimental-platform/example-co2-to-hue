@@ -79,6 +79,11 @@
       </div>
 
       <div class="row">
+        <div class="col-md-11">
+          <strong>Current PPM: </strong><span id="currentPPM"></span>
+        </div>
+      </div>
+      <div class="row">
         <div id="graphContainer" class="col-md-11">
           <div id="y_axis"></div>
           <div id="graph"></div>
@@ -132,7 +137,7 @@
       var socket = io.connect("/", {path: document.location.pathname + 'socket.io'});
 
       var maxGraphSize = 100; // maximum number of elements in the graph
-      var graphData = [];
+      var graphData = [{x: 0, y: 500}];
       var graph = new Rickshaw.Graph({
         element: document.querySelector("#graph"),
         height: 250,
@@ -145,6 +150,7 @@
           }
         ]
       });
+
       var x_axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
       var y_axis = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
@@ -161,7 +167,7 @@
 
       graph.render();
 
-      var counter = 0;
+      var counter = 1;
       socket.on('reading', function (data) {
         graphData.push({x: counter, y: data});
         graphData.splice(0, graphData.length - maxGraphSize);

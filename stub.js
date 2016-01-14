@@ -3,18 +3,18 @@ var app = require('./app');
 var authToken = '342716561e24f19024c9edfb8f89eee'
 var hueEndpoint = '/api/' + authToken + '/lights/2/state';
 var sensorID = 'co2SensorStub';
-var platformUrl;
+var appName;
 var io;
 
-module.exports = function (_io, _platformURL) {
+module.exports = function (_io, _appName) {
   io = _io;
-  platformUrl = _platformURL;
+  appName = _appName;
 
   io.on('connection', function (socket) {
     socket.emit('hue', color);
   });
 
-  publishToPlatform();
+  publishToApp();
   return {
     authToken: authToken,
     sensorID:  sensorID,
@@ -43,9 +43,11 @@ setInterval(function () {
   io.sockets.emit('co2', {value: sensor});
 }, 1000);
 
-var publishToPlatform = function () {
+var publishToApp = function () {
   setTimeout(function () {
-    request.post(platformUrl + "/devices/" + sensorID, function () { publishToPlatform() })
+    var co2Endpoint = "http://localhost:" + app.get('port') + appName + "/co2";
+    console.log("publishing to " + co2Endpoint);
+    request.post(co2Endpoint, function (err, res, body) { publishToApp() })
       .form({value: sensor})
       .on('error', function (err) {
         console.log("Could not send sensor data to experimental platform: "+ err.code);

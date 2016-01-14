@@ -5,9 +5,12 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io')(server);
 
-var platformUrl = process.env.PLATFORM_URL || 'http://localhost:3200';
-var stub = require('./stub')(io, platformUrl);
-var co2hue = require('./co2hue')(io, platformUrl);
+var appName = "";
+if (typeof(process.env.APP) != 'undefined') {
+  appName = "/" + process.env.APP;
+}
+var stub = require('./stub')(io, appName);
+var co2hue = require('./co2hue')(io);
 
 co2hue.authToken = stub.authToken;
 co2hue.sensorID = stub.sensorID;
