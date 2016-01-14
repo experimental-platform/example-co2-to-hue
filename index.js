@@ -38,6 +38,7 @@ app.post('/settings', function (req, res) {
   if ('sensorID' in settings) {
     co2hue.sensorID = settings.sensorID;
   }
+  res.sendStatus(200);
 });
 
 reload(server, app);
