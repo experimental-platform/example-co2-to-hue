@@ -129,7 +129,7 @@
     <script src="js/tinycolor.js"></script>
     <script src="js/rickshaw.min.js"></script>
     <script type="text/javascript" charset="utf-8">
-      var socket = io.connect(document.location.pathname);
+      var socket = io.connect("/", {path: document.location.pathname + 'socket.io'});
 
       var maxGraphSize = 100; // maximum number of elements in the graph
       var graphData = [];
