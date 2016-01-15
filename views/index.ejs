@@ -165,9 +165,12 @@
 
       graph.render();
 
+      var colors = ['#B212C7', '#1248C7', '#12DEC3', '#DE7812', '#D7DE12'];
       var buildSensorSerie = function (sensorName) {
+        var color = colors.pop();
+        colors.unshift(color);
         return {
-          color: 'steelblue',
+          color: color,
           data: [],
           name: sensorName
         };
