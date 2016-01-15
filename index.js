@@ -14,6 +14,7 @@ co2hue.bridgeAddress = 'http://localhost:' + app.get('port')
 
 app.get('/', function (req, res) {
   res.render('index', {
+    bridgeAddress: co2hue.bridgeAddress,
     fakeSensorID: stub.sensorID,
     authToken: co2hue.authToken,
     controllingSensor: co2hue.controllingSensor,

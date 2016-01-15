@@ -67,7 +67,7 @@
             </div>
             <div class="form-group">
               <label for="bridgeAddress">Bridge IP:</label>
-              <input type="text" name="bridgeAddress" class="form-control" id="bridgeAddress"></input>
+              <input type="text" name="bridgeAddress" class="form-control" id="bridgeAddress" value="<%= bridgeAddress %>"></input>
             </div>
             <div class="form-group">
               <label for="controllingSensor">Controlling:</label>
@@ -247,7 +247,6 @@
 
       $(function () {
         $('#fakeBridgeAddress').html(location.host);
-        $('#bridgeAddress').val(location.host);
         $('.settingsToggle').on('click', function(e) {
           var toggleDelay = $(this).attr('data-toggle-delay') || 0;
           $('#settingsPanel').find(".panel-body").toggle(toggleDelay);
