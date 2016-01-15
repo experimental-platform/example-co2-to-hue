@@ -4,7 +4,7 @@ var io;
 
 var highPPM    = 1500
   , mediumPPM  = 1000
-  , currentPPM = 0;
+  , sensorData = {}
 
 var hueGreen  = {'on': true, 'sat': 254, 'bri': 64, 'hue': 25500}
   , hueYellow = {'on': true, 'sat': 254, 'bri': 128,'hue': 12750}
@@ -13,7 +13,8 @@ var hueGreen  = {'on': true, 'sat': 254, 'bri': 64, 'hue': 25500}
 var config = {
   authToken: null,
   bridgeAddress: null,
-  sensorID: null
+  controllingSensor: null,
+  sensorData: sensorData
 };
 
 module.exports = function (_io) {
@@ -21,19 +22,32 @@ module.exports = function (_io) {
   return config;
 }
 
-app.post("/co2", function (req, res) {
+var changeHueColor = function (newPPM, oldPPM) {
+  if (ppmChangedToLow(newPPM, oldPPM)) {
+    setHueTo(hueGreen);
+  } else if (ppmChangedToMedium(newPPM, oldPPM)) {
+    setHueTo(hueYellow);
+  } else if (ppmChangedToHigh(newPPM, oldPPM)) {
+    setHueTo(hueRed);
+  }
+}
+
+app.post("/co2/:sensorID", function (req, res) {
+  var sensorID = req.params.sensorID;
   var newPPM = parseInt(req.body.value);
-  if (!isNaN(newPPM) && newPPM != currentPPM) {
-    if (ppmChangedToLow(newPPM)) {
-      setHueTo(hueGreen);
-    } else if (ppmChangedToMedium(newPPM)) {
-      setHueTo(hueYellow);
-    } else if (ppmChangedToHigh(newPPM)) {
-      setHueTo(hueRed);
-    }
-    console.log('received new CO2 level. Old: ' + currentPPM + 'ppm - new: ' + newPPM + 'ppm');
-    currentPPM = newPPM;
-    io.sockets.emit('reading', newPPM);
+  var oldPPM = sensorData[sensorID];
+
+  if (!newPPM) {
+    console.log('could not parse "' + req.body.value + '" to a number');
+  } else {
+    console.log('received new CO2 level. Old: ' + oldPPM + 'ppm - new: ' + newPPM + 'ppm');
+  }
+
+  sensorData[sensorID] = newPPM;
+  io.sockets.emit('reading', sensorData);
+
+  if (sensorID === config.controllingSensor) {
+    changeHueColor(newPPM, oldPPM);
   }
   res.sendStatus(200);
 });
@@ -50,16 +64,16 @@ var isHighPPM = function (ppm) {
   return ppm > highPPM;
 }
 
-var ppmChangedToLow = function (ppm) {
-  return isLowPPM(ppm) && !isLowPPM(currentPPM);
+var ppmChangedToLow = function (ppm, oldPPM) {
+  return isLowPPM(ppm) && (oldPPM && isLowPPM(oldPPM));
 }
 
-var ppmChangedToMedium = function (ppm) {
-  return isMediumPPM(ppm) && !isMediumPPM(currentPPM)
+var ppmChangedToMedium = function (ppm, oldPPM) {
+  return isMediumPPM(ppm) && (oldPPM && isMediumPPM(oldPPM));
 }
 
-var ppmChangedToHigh = function (ppm) {
-  return isHighPPM(ppm) && !isHighPPM(currentPPM);
+var ppmChangedToHigh = function (ppm, oldPPM) {
+  return isHighPPM(ppm) && (oldPPM && isHighPPM(oldPPM));
 }
 
 var setHueTo = function(hueColor) {

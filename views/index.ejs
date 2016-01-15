@@ -70,8 +70,10 @@
               <input type="text" name="bridgeAddress" class="form-control" id="bridgeAddress"></input>
             </div>
             <div class="form-group">
-              <label for="sensorID">Sensor ID:</label>
-              <input type="text" name="sensorID" class="form-control" value="<%= sensorID %>">
+              <label for="controllingSensor">Controlling:</label>
+              <select name="controllingSensor" id="controllingSensorSelect" class="form-control">
+                <option value="<%= fakeSensorID %>" selected="<%= fakeSensorID === controllingSensor %>"><%= fakeSensorID %></option>
+              </select>
             </div>
             <button type="submit" id="settingsButton" class="btn btn-success settingsToggle" data-toggle-delay="70">Save</button>
           </form>
@@ -136,19 +138,15 @@
     <script type="text/javascript" charset="utf-8">
       var socket = io.connect("/", {path: document.location.pathname + 'socket.io'});
 
+      var sensors = {};
       var maxGraphSize = 100; // maximum number of elements in the graph
-      var graphData = [{x: 0, y: 500}];
+      var series = [];
+
       var graph = new Rickshaw.Graph({
         element: document.querySelector("#graph"),
         height: 250,
         renderer: 'line',
-        series: [
-          {
-            color: 'steelblue',
-            data: graphData,
-            name: 'co2 level'
-          }
-        ]
+        series: series
       });
 
       var x_axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
@@ -167,11 +165,36 @@
 
       graph.render();
 
+      var buildSensorSerie = function (sensorName) {
+        return {
+          color: 'steelblue',
+          data: [],
+          name: sensorName
+        };
+      }
+
       var counter = 1;
       socket.on('reading', function (data) {
-        graphData.push({x: counter, y: data});
-        graphData.splice(0, graphData.length - maxGraphSize);
-        $("#currentPPM").html(data);
+        for (var sensorID in data) {
+          var sensorData;
+          if (!(sensorID in sensors)) {
+            var newSensorSerie = buildSensorSerie(sensorID);
+            sensors[sensorID] = newSensorSerie.data;
+            series.push(newSensorSerie);
+            if (sensorID !== '<%= fakeSensorID %>') {
+              var optionTag = $('<option>', {
+                value: sensorID,
+                text: sensorID,
+                selected: sensorID === '<%= controllingSensor %>'
+              });
+              $("#controllingSensorSelect").append(optionTag);
+            }
+          }
+          sensorData = sensors[sensorID];
+          sensorData.splice(0, sensorData.length - maxGraphSize);
+          sensorData.push({x: counter, y: data[sensorID]});
+        }
+        //$("#currentPPM").html(data);
         counter++;
 			});
 

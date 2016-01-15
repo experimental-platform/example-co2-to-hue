@@ -9,14 +9,15 @@ var stub = require('./stub')(io);
 var co2hue = require('./co2hue')(io);
 
 co2hue.authToken = stub.authToken;
-co2hue.sensorID = stub.sensorID;
+co2hue.controllingSensor = stub.sensorID;
 co2hue.bridgeAddress = 'http://localhost:' + app.get('port')
 
 app.get('/', function (req, res) {
   res.render('index', {
     fakeSensorID: stub.sensorID,
     authToken: co2hue.authToken,
-    sensorID: co2hue.sensorID
+    controllingSensor: co2hue.controllingSensor,
+    sensorData: co2hue.sensorData
   });
 });
 
@@ -31,8 +32,8 @@ app.post('/settings', function (req, res) {
   if ('bridgeAddress' in settings) {
     co2hue.bridgeAddress = settings.bridgeAddress;
   }
-  if ('sensorID' in settings) {
-    co2hue.sensorID = settings.sensorID;
+  if ('controllingSensor' in settings) {
+    co2hue.controllingSensor = settings.controllingSensor;
   }
   res.sendStatus(200);
 });

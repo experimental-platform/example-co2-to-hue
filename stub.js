@@ -37,13 +37,13 @@ app.put(hueEndpoint, function (req, res) {
 setInterval(function () {
   sensor = Math.floor((high - low) * Math.abs(Math.sin(counter)) + low);
   counter += 0.1;
-  console.log('Dummy CO2 sensor reading ' + sensor + ' ppm');
+  // console.log('Dummy CO2 sensor reading ' + sensor + ' ppm');
   io.sockets.emit('co2', {value: sensor});
 }, 1000);
 
 var publishToApp = function () {
   setTimeout(function () {
-    var co2Endpoint = "http://localhost:" + app.get('port') + "/co2";
+    var co2Endpoint = "http://localhost:" + app.get('port') + "/co2/" + sensorID;
     console.log("publishing to " + co2Endpoint);
     request.post(co2Endpoint, function (err, res, body) { publishToApp() })
       .form({value: sensor})
