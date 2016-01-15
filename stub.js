@@ -3,12 +3,10 @@ var app = require('./app');
 var authToken = '342716561e24f19024c9edfb8f89eee'
 var hueEndpoint = '/api/' + authToken + '/lights/2/state';
 var sensorID = 'co2SensorStub';
-var appName;
 var io;
 
-module.exports = function (_io, _appName) {
+module.exports = function (_io) {
   io = _io;
-  appName = _appName;
 
   io.on('connection', function (socket) {
     socket.emit('hue', color);
@@ -45,7 +43,7 @@ setInterval(function () {
 
 var publishToApp = function () {
   setTimeout(function () {
-    var co2Endpoint = "http://localhost:" + app.get('port') + appName + "/co2";
+    var co2Endpoint = "http://localhost:" + app.get('port') + "/co2";
     console.log("publishing to " + co2Endpoint);
     request.post(co2Endpoint, function (err, res, body) { publishToApp() })
       .form({value: sensor})

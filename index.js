@@ -5,11 +5,7 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io')(server);
 
-var appName = "";
-if (typeof(process.env.APP) != 'undefined') {
-  appName = "/" + process.env.APP;
-}
-var stub = require('./stub')(io, appName);
+var stub = require('./stub')(io);
 var co2hue = require('./co2hue')(io);
 
 co2hue.authToken = stub.authToken;
