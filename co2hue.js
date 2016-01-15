@@ -65,15 +65,15 @@ var isHighPPM = function (ppm) {
 }
 
 var ppmChangedToLow = function (ppm, oldPPM) {
-  return isLowPPM(ppm) && (oldPPM && isLowPPM(oldPPM));
+  return isLowPPM(ppm) && (oldPPM && !isLowPPM(oldPPM));
 }
 
 var ppmChangedToMedium = function (ppm, oldPPM) {
-  return isMediumPPM(ppm) && (oldPPM && isMediumPPM(oldPPM));
+  return isMediumPPM(ppm) && (oldPPM && !isMediumPPM(oldPPM));
 }
 
 var ppmChangedToHigh = function (ppm, oldPPM) {
-  return isHighPPM(ppm) && (oldPPM && isHighPPM(oldPPM));
+  return isHighPPM(ppm) && (oldPPM && !isHighPPM(oldPPM));
 }
 
 var setHueTo = function(hueColor) {
