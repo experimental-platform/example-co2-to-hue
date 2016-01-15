@@ -120,7 +120,7 @@
           <h1 class="page-header">Dummy Hue bulb</h1>
           <dl>
             <dt>Bridge Adress</dt>
-            <dd id="fakeBridgeAddress"></dd>
+            <dd><%= fakeBridgeAddress %></dd>
             <dt>Auth Token</dt>
             <dd>342716561e24f19024c9edfb8f89eee</dd>
           </dl>
@@ -246,7 +246,6 @@
       });
 
       $(function () {
-        $('#fakeBridgeAddress').html(location.host);
         $('.settingsToggle').on('click', function(e) {
           var toggleDelay = $(this).attr('data-toggle-delay') || 0;
           $('#settingsPanel').find(".panel-body").toggle(toggleDelay);

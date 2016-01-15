@@ -7,16 +7,18 @@ var express = require('express')
 
 var stub = require('./stub')(io);
 var co2hue = require('./co2hue')(io);
+var localAddress = 'http://localhost:' + app.get('port');
 
 co2hue.authToken = stub.authToken;
 co2hue.controllingSensor = stub.sensorID;
-co2hue.bridgeAddress = 'http://localhost:' + app.get('port')
+co2hue.bridgeAddress = localAddress;
 
 app.get('/', function (req, res) {
   res.render('index', {
+    fakeBridgeAddress: localAddress,
     bridgeAddress: co2hue.bridgeAddress,
-    fakeSensorID: stub.sensorID,
     authToken: co2hue.authToken,
+    fakeSensorID: stub.sensorID,
     controllingSensor: co2hue.controllingSensor,
     sensorData: co2hue.sensorData
   });
