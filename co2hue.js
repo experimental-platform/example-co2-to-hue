@@ -79,7 +79,9 @@ var ppmChangedToHigh = function (ppm, oldPPM) {
 var setHueTo = function(hueColor) {
   if (config.bridgeAddress) {
     console.log('Setting color to ' + JSON.stringify(hueColor) + ' via ' + hueUrl());
-    request.put(hueUrl()).json(hueColor)
+    request.put(hueUrl()).json(hueColor).on('error', function (err) {
+      console.log(err);
+    });
   }
 }
 
